@@ -13,7 +13,7 @@ function App() {
   }, [])
 
   const champArray = champData.map(champ => {
-    const champName = champ.name.toLowerCase()
+    const champName = champ.name.toLowerCase().split("'").join('')
     const lolalytics = `https://lolalytics.com/lol/${champName}/aram/build/`
     return (
       <li>
