@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 
 function App() {
@@ -8,7 +8,8 @@ function App() {
     site: 'lolalytics',
     mode: 'aram'
   })
-  console.log(searchOptions)
+  const inputRef = useRef(filteredChamps[0])
+  // console.log(searchOptions)
   
   // Load champs
   useEffect( () => {
@@ -21,7 +22,7 @@ function App() {
   }, [searchOptions])
 
   const champArray = filteredChamps.map(champ => {
-    const champName = champ.name.toLowerCase().split("'").join('')
+    const champName = prepareName(champ.name)
     const link = generateUrl(champName)
     const champImage = `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${champ.key}.png`
    
@@ -34,6 +35,14 @@ function App() {
       </li>
     )
   })
+
+  function prepareName (champName) {
+    // Replace with regex that removes apostrophes, dots, and spaces
+    let name = champName.toLowerCase().split("'").join('')
+    name = name.split(".").join('')
+    name = name.split(" ").join('')
+    return name
+  }
 
   function generateUrl (champName) {
     const selector = searchOptions.mode + searchOptions.site
@@ -61,6 +70,12 @@ function App() {
 
     setFilteredChamps(updatedList)
   }
+  
+  function test (e) {
+    e.preventDefault()
+    window.open(champArray[0].props.children.props.href, '_blank')
+
+  }
 
   async function getChamps() {
     if (localStorage.champList) {
@@ -84,8 +99,10 @@ function App() {
 
   return (
     <>
-      <form action="">
+      <form onSubmit={test} className="flex gap-1 justify-center mb-6" action="">
         <input 
+          autoFocus
+          className="p-4 rounded-l-full"
           type="text" 
           name="search" 
           id="search" 
@@ -93,12 +110,8 @@ function App() {
           // value={searchOptions.search}
           onChange={filterBySearch}
         />
-        {/* <input 
-          type="text" 
-          name="mode" 
-          id="mode" 
-        /> */}
         <select 
+          className="p-4 appearance-none hover:cursor-pointer"
           name="mode" 
           id="mode"
           value={searchOptions.mode}
@@ -107,7 +120,8 @@ function App() {
           <option value="aram">ARAM</option>
           <option value="sr">Summoner's Rift</option>
         </select>
-        <select 
+        <select
+          className="p-4 appearance-none rounded-r-full hover:cursor-pointer"
           name="site" 
           id="site"
           value={searchOptions.site}
